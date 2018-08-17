@@ -1,4 +1,8 @@
-export default (Styles = {
+import { StyleSheet } from 'react-native';
+
+export interface INotePreviewStyles {}
+
+export default StyleSheet.create<INotePreviewStyles>({
   container: {
     flex: 1,
     justifyContent: 'center',

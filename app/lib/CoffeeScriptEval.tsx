@@ -1,11 +1,13 @@
+// noinspection TsLint
 const CoffeeScript = require('coffeescript/lib/coffeescript/coffeescript');
 const compile = CoffeeScript.compile;
 
-CoffeeScript.eval = function(code, options = {}) {
+CoffeeScript.eval = (code: string, options: any) => {
   if (options.bare == null) {
     options.bare = true;
   }
+  // noinspection TsLint
   return eval(compile(code, options));
 };
 
-module.exports = CoffeeScript;
+export default CoffeeScript;

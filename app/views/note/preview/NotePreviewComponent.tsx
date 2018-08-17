@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import { View, Text } from 'react-native';
 
@@ -9,9 +9,21 @@ import Markdown, {
   MarkdownIt,
 } from 'react-native-markdown-renderer';
 import markdownItCheckbox from 'markdown-it-checkbox';
+import autobind from 'autobind-decorator';
 
-export default class NotePreview extends React.Component {
-  constructor(props) {
+export interface INotePreviewProps {
+  text: string;
+  onTapCheckBox: (line: number) => void;
+}
+
+interface INotePreviewState {
+  text: string;
+  taskListLinesFromMarkdown: any[];
+  taskListIdsFromCheckbox: any[];
+}
+
+export default class NotePreview extends React.Component<INotePreviewProps, INotePreviewState> {
+  constructor(props: INotePreviewProps) {
     super(props);
 
     this.state = {
@@ -21,7 +33,7 @@ export default class NotePreview extends React.Component {
     };
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props: INotePreviewProps) {
     this.setState({
       text: props.text,
       taskListLinesFromMarkdown: this.createTaskListLine(props.text),
@@ -29,15 +41,28 @@ export default class NotePreview extends React.Component {
     });
   }
 
-  hasParents(parents, type) {
-    return parents.findIndex((el) => el.type === type) > -1;
+  @autobind
+  hasParents(parents: any, type: any) {
+    return parents.findIndex((el: any) => el.type === type) > -1;
   }
 
-  createTaskListLine(text) {
+  @autobind
+  createTaskListLine(text: string) {
     return stringToTokens(text, MarkdownIt().use(markdownItCheckbox))
-      .filter((token) => token.type === 'inline')
-      .filter((token) => token.children[0] && token.children[0].type === 'checkbox_input')
-      .map((token) => token.map[0]);
+      .filter((token: any) => token.type === 'inline')
+      .filter((token: any) => token.children[0] && token.children[0].type === 'checkbox_input')
+      .map((token: any) => token.map[0]);
+  }
+
+  @autobind
+  onCheckBoxClickFactory(node: any): () => void {
+    return () => {
+      const selfNode = node;
+      const i = this.state.taskListIdsFromCheckbox
+        .slice(-this.state.taskListLinesFromMarkdown.length)
+        .findIndex((element) => element === selfNode.attributes.id); // , index, array
+      this.props.onTapCheckBox(this.state.taskListLinesFromMarkdown[i]);
+    };
   }
 
   render() {
@@ -46,7 +71,7 @@ export default class NotePreview extends React.Component {
         <Markdown
           plugins={[new PluginContainer(markdownItCheckbox)]}
           rules={{
-            li: (node, children, parent, styles) => {
+            li: (node: any, children: any, parent: any, styles: any) => {
               if (this.hasParents(parent, 'ul')) {
                 // For tasklist
                 if (
@@ -85,21 +110,18 @@ export default class NotePreview extends React.Component {
                 </View>
               );
             },
-            label: (node, children, parents) => {
+            label: (node: any, children: any) => {
+              // , parents: any
               return children;
             },
-            input: (node, children, parents) => {
+            input: (node: any) => {
+              // , children: any, parents: any
               this.state.taskListIdsFromCheckbox.push(node.attributes.id);
 
               return (
                 <CheckBox
                   key={node.key}
-                  onClick={() => {
-                    const i = this.state.taskListIdsFromCheckbox
-                      .slice(-this.state.taskListLinesFromMarkdown.length)
-                      .findIndex((element, index, array) => element === node.attributes.id);
-                    this.props.onTapCheckBox(this.state.taskListLinesFromMarkdown[i]);
-                  }}
+                  onClick={this.onCheckBoxClickFactory(node)}
                   isChecked={!!node.attributes.checked}
                   isIndeterminate={false}
                 />

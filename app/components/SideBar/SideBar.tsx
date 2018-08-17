@@ -1,10 +1,52 @@
-import React, { Component } from 'react';
-import { Linking, Text, TextInput, View, Platform } from 'react-native';
+import * as React from 'react';
+import { Linking, Text, View, Platform } from 'react-native';
 import { Container, Icon, Button } from 'native-base';
 
-import styles from './styles';
+import styles from './SideBarStyles';
+import autobind from 'autobind-decorator';
 
-export default class SideBar extends React.Component {
+export interface ISideBarProps {
+  changeMode: (mode: number) => void;
+  onClose: () => void;
+}
+
+export default class SideBar extends React.Component<ISideBarProps> {
+  constructor(props: ISideBarProps) {
+    super(props);
+  }
+
+  @autobind
+  onAllNotesButtonPress() {
+    this.props.changeMode(0);
+    this.props.onClose();
+  }
+
+  @autobind
+  onDropboxButtonPress() {
+    this.props.changeMode(1);
+    this.props.onClose();
+  }
+
+  @autobind
+  async onBoostnoteSubscribeTextPress() {
+    await Linking.openURL('https://boostnote.io/#subscribe');
+  }
+
+  @autobind
+  async onBoostnoteGithubTextPress() {
+    await Linking.openURL('https://github.com/mng-au/boostnote-mobile');
+  }
+
+  @autobind
+  async onBoostnoteTwitterTextPress() {
+    await Linking.openURL('https://twitter.com/boostnoteapp');
+  }
+
+  @autobind
+  async onBoostnoteFacebookTextPress() {
+    await Linking.openURL('https://www.facebook.com/groups/boostnote/');
+  }
+
   render() {
     return (
       <Container style={{ backgroundColor: '#2E3235' }}>
@@ -24,16 +66,13 @@ export default class SideBar extends React.Component {
                     }
                   : { backgroundColor: 'transparent', paddingLeft: 0 }
               }
-              onPress={() => {
-                this.props.changeMode(0);
-                this.props.onClose();
-              }}
+              onPress={this.onAllNotesButtonPress}
             >
               <Text
                 style={Platform.OS === 'android' ? styles.noteSelectorAndroid : styles.noteSelector}
               >
                 <Icon
-                  name="md-archive"
+                  name={'md-archive'}
                   style={{ color: '#FDC134', fontSize: 14, backgroundColor: 'transparent' }}
                 />{' '}
                 All Notes
@@ -55,16 +94,13 @@ export default class SideBar extends React.Component {
                     }
                   : { backgroundColor: 'transparent', paddingLeft: 0 }
               }
-              onPress={() => {
-                this.props.changeMode(1);
-                this.props.onClose();
-              }}
+              onPress={this.onDropboxButtonPress}
             >
               <Text
                 style={Platform.OS === 'android' ? styles.noteSelectorAndroid : styles.noteSelector}
               >
                 <Icon
-                  name="logo-dropbox"
+                  name={'logo-dropbox'}
                   style={{ color: '#2BA6FA', fontSize: 18, backgroundColor: 'transparent' }}
                 />{' '}
                 Dropbox
@@ -79,31 +115,25 @@ export default class SideBar extends React.Component {
         </View>
 
         <View style={styles.bottomLink}>
-          <Text
-            onPress={() => Linking.openURL('https://boostnote.io/#subscribe')}
-            style={styles.bottomLinkWord}
-          >
-            <Icon style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }} name="ios-mail" />
+          <Text onPress={this.onBoostnoteSubscribeTextPress} style={styles.bottomLinkWord}>
+            <Icon style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }} name={'ios-mail'} />
           </Text>
-          <Text
-            onPress={() => Linking.openURL('https://github.com/BoostIO/Boostnote-mobile')}
-            style={styles.bottomLinkWord}
-          >
-            <Icon style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }} name="logo-github" />
-          </Text>
-          <Text
-            onPress={() => Linking.openURL('https://twitter.com/boostnoteapp')}
-            style={styles.bottomLinkWord}
-          >
-            <Icon style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }} name="logo-twitter" />
-          </Text>
-          <Text
-            onPress={() => Linking.openURL('https://www.facebook.com/groups/boostnote/')}
-            style={styles.bottomLinkWord}
-          >
+          <Text onPress={this.onBoostnoteGithubTextPress} style={styles.bottomLinkWord}>
             <Icon
               style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }}
-              name="logo-facebook"
+              name={'logo-github'}
+            />
+          </Text>
+          <Text onPress={this.onBoostnoteTwitterTextPress} style={styles.bottomLinkWord}>
+            <Icon
+              style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }}
+              name={'logo-twitter'}
+            />
+          </Text>
+          <Text onPress={this.onBoostnoteFacebookTextPress} style={styles.bottomLinkWord}>
+            <Icon
+              style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)' }}
+              name={'logo-facebook'}
             />
           </Text>
         </View>

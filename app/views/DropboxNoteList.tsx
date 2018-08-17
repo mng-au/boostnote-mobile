@@ -2,11 +2,14 @@ import * as React from 'react';
 import { Text, TextInput, View, Alert, AsyncStorage, RefreshControl, Linking } from 'react-native';
 import { Body, Card, Icon, CardItem, Button, Content, ActionSheet } from 'native-base';
 import * as moment from 'moment';
-import CoffeeScript from '../lib/CofeeScriptEval';
+import CoffeeScript from '../lib/CoffeeScriptEval';
 import settings from '../config/settings';
 import { makeRandomHex } from '../lib/Strings';
 import DropboxNoteModal from './note/DropboxNoteModal';
+import autobind from 'autobind-decorator';
+import {IFolder, INote} from '../models';
 
+// noinspection TsLint
 const js2coffee = require('js2coffee/dist/js2coffee');
 const DROPBOX_ACCESS_TOKEN = 'DROPBOX:ACCESS_TOKEN';
 
@@ -101,6 +104,7 @@ export interface IDropboxNoteListProps {
 }
 
 interface IDropboxNoteListState {
+  path: string;
   token: string;
   folderList: any;
   noteList: any[];
@@ -115,11 +119,12 @@ export default class DropboxNoteList extends React.Component<
   IDropboxNoteListProps,
   IDropboxNoteListState
 > {
-  actionSheet: unknown;
+  actionSheet: any;
 
   constructor(props: IDropboxNoteListProps, context?: any) {
     super(props, context);
     this.state = {
+      path: '',
       token: '',
       folderList: {},
       noteList: [],
@@ -156,7 +161,8 @@ export default class DropboxNoteList extends React.Component<
       });
   }
 
-  getDropboxNoteData(token) {
+  @autobind
+  getDropboxNoteData(token: string) {
     this.setState({
       noteList: [],
       isLoading: true,
@@ -199,7 +205,7 @@ export default class DropboxNoteList extends React.Component<
       })
       .then((response) => response.json())
       .then((responseJson) => {
-        const noteList = [];
+        const noteList: any[] = [];
 
         if (
           responseJson.error_summary &&
@@ -214,7 +220,7 @@ export default class DropboxNoteList extends React.Component<
           return;
         }
 
-        this.state.folderList.forEach((folder) => {
+        this.state.folderList.forEach((folder: any) => {
           noteList.push({
             folderKey: folder.key,
             folderName: folder.name,
@@ -224,7 +230,7 @@ export default class DropboxNoteList extends React.Component<
 
         // Get data from newest note to older note
         responseJson.entries.reverse();
-        responseJson.entries.forEach((entry) => {
+        responseJson.entries.forEach((entry: any) => {
           if (!entry.name.endsWith('.cson')) {
             // Do nothing
             // Parse cson file only now
@@ -267,7 +273,7 @@ export default class DropboxNoteList extends React.Component<
                 path: entry.path_display,
                 updatedAt: response.updatedAt,
               });
-              notesOfFolder.sort((a, b) => {
+              notesOfFolder.sort((a: any, b: any) => {
                 return a.updatedAt < b.updatedAt ? 1 : -1;
               });
 
@@ -291,6 +297,7 @@ export default class DropboxNoteList extends React.Component<
       });
   }
 
+  @autobind
   getAccessToken() {
     fetch(
       `https://api.dropboxapi.com/oauth2/token?code=${
@@ -330,13 +337,15 @@ export default class DropboxNoteList extends React.Component<
       });
   }
 
-  setNoteModalOpen(path) {
+  @autobind
+  setNoteModalOpen(path: string) {
     this.setState({
       path: path,
       isNoteOpen: true,
     });
   }
 
+  @autobind
   setNoteModalClose() {
     this.setState({
       isNoteOpen: false,
@@ -344,7 +353,7 @@ export default class DropboxNoteList extends React.Component<
   }
 
   createNewNote() {
-    const folderChooseMenu = this.state.folderList.map((folder) => folder.name);
+    const folderChooseMenu = this.state.folderList.map((folder: IFolder) => folder.name);
     folderChooseMenu.push('Cancel');
     if (this.actionSheet !== null) {
       this.actionSheet._root.showActionSheet(
@@ -353,7 +362,7 @@ export default class DropboxNoteList extends React.Component<
           cancelButtonIndex: this.state.folderList.length,
           title: 'Choose folder to create note',
         },
-        (buttonIndex) => {
+        (buttonIndex: number) => {
           if (buttonIndex === this.state.folderList.length) {
             return;
           }
@@ -393,7 +402,7 @@ export default class DropboxNoteList extends React.Component<
   render() {
     return (
       <Content
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps={'always'}
         refreshControl={
           <RefreshControl
             refreshing={this.state.isLoading}
@@ -448,7 +457,7 @@ export default class DropboxNoteList extends React.Component<
               >
                 <Text style={styles.dropboxLinkButtonText}>
                   <Icon
-                    name="logo-dropbox"
+                    name={"logo-dropbox"}
                     style={{
                       color: '#2BA6FA',
                       fontSize: 16,
@@ -482,7 +491,7 @@ export default class DropboxNoteList extends React.Component<
               />
               <Button
                 style={{ flex: 1, backgroundColor: '#F3F4F4', height: 35, width: 35 }}
-                onPress={this.getAccessToken.bind(this)}
+                onPress={this.getAccessToken}
               >
                 <Text>Send!</Text>
               </Button>
@@ -521,22 +530,22 @@ export default class DropboxNoteList extends React.Component<
             </View>
           </View>
         ) : null}
-        <Card transparent style={styles.noteListWrap}>
+        <Card transparent={true} style={styles.noteListWrap}>
           <View>
-            {this.state.noteList.map((folder, index, array) => {
+            {this.state.noteList.map((folder: IFolder, index, array) => {
               return (
                 <View key={index}>
-                  <CardItem key={folder.folderKey} itemDivider>
+                  <CardItem key={folder.folderKey} itemDivider={true}>
                     <Text>{folder.folderName}</Text>
                   </CardItem>
                   {folder &&
                     folder.notes &&
-                    folder.notes.map((note) => {
+                    folder.notes.map((note: INote) => {
                       return (
                         <CardItem
                           style={styles.noteList}
                           key={note.fileName}
-                          button
+                          button={true}
                           onPress={() => this.setNoteModalOpen(note.path)}
                         >
                           <Body>
@@ -556,7 +565,7 @@ export default class DropboxNoteList extends React.Component<
           </View>
         </Card>
         <DropboxNoteModal
-          setIsOpen={this.setNoteModalClose.bind(this)}
+          setIsOpen={this.setNoteModalClose}
           isNoteOpen={this.state.isNoteOpen}
           path={this.state.path}
         />

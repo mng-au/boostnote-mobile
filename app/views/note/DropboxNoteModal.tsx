@@ -24,7 +24,7 @@ const js2coffee = require('js2coffee/dist/js2coffee');
 const DROPBOX_ACCESS_TOKEN = 'DROPBOX:ACCESS_TOKEN';
 
 export interface IDropboxNoteModalProps {
-  setIsOpen: boolean;
+  setIsOpen: () => void;
   isNoteOpen: boolean;
   path: string;
 }

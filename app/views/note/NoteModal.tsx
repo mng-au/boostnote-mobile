@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   Keyboard,
   Dimensions,
@@ -15,10 +15,27 @@ import NotePreview from './preview/NotePreviewComponent';
 import NoteInputSupport from './inputSupport/NoteInputSupport';
 import RNFetchBlob from 'react-native-fetch-blob';
 import HeaderComponent from './HeaderComponent';
+import autobind from 'autobind-decorator';
 const fs = RNFetchBlob.fs;
 
-export default class NoteModal extends React.Component {
-  constructor(props) {
+export interface INoteModalProps {
+  fileName: string;
+  content: string;
+  setIsOpen: (fileName: string, isOpen: boolean) => void;
+  isNoteOpen: boolean;
+}
+
+interface INoteModalState {
+  fileName: string;
+  text: string;
+  height: number;
+  isEditting: boolean;
+  visibleHeight: number;
+  endOfSelection: number;
+}
+
+export default class NoteModal extends React.Component<INoteModalProps, INoteModalState> {
+  constructor(props: INoteModalProps) {
     super(props);
 
     this.state = {
@@ -29,11 +46,9 @@ export default class NoteModal extends React.Component {
       visibleHeight: 230,
       endOfSelection: 0,
     };
-    this.keyboardDidShow = this.keyboardDidShow.bind(this);
-    this.keyboardDidHide = this.keyboardDidHide.bind(this);
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(props: INoteModalProps) {
     // if user is opening a same file, set state.
     if (props.fileName === this.state.fileName) {
       return;
@@ -47,7 +62,8 @@ export default class NoteModal extends React.Component {
     });
   }
 
-  async onChangeText(text) {
+  @autobind
+  async onChangeText(text: string) {
     // set note state
     this.setState({
       text: text,
@@ -77,7 +93,7 @@ export default class NoteModal extends React.Component {
       `${dirs.DocumentDir}/Boostnote/boostnote.json`,
       JSON.stringify(parsedSetting),
       'utf8',
-    ).catch((err) => console.log(err));
+    ).catch((err: Error) => console.log(err));
   }
 
   componentWillMount() {
@@ -90,26 +106,29 @@ export default class NoteModal extends React.Component {
     this.keyboardDidHideListener.remove();
   }
 
+  @autobind
   keyboardDidShow(e) {
     this.setState({
       visibleHeight: Dimensions.get('window').height - e.endCoordinates.height - 100,
     });
   }
 
+  @autobind
   keyboardDidHide(e) {
     this.setState({
       visibleHeight: Dimensions.get('window').height - 100,
     });
   }
 
+  @autobind
   getNoteComponent() {
     if (this.state.isEditting) {
       return (
         <View style={{ flex: 1 }}>
-          <ScrollView keyboardShouldPersistTaps="always">
+          <ScrollView keyboardShouldPersistTaps={'always'}>
             <TextInput
-              ref="TextInput"
-              multiline
+              ref={'TextInput'}
+              multiline={true}
               style={
                 Platform.OS === 'android'
                   ? { margin: 8, height: this.state.visibleHeight - 30 }
@@ -120,7 +139,7 @@ export default class NoteModal extends React.Component {
               onSelectionChange={(e) => {
                 this.setState({ endOfSelection: e.nativeEvent.selection.end });
               }}
-              autoFocus
+              autoFocus={true}
               textAlignVertical={'top'}
             />
             <NoteInputSupport
@@ -131,7 +150,7 @@ export default class NoteModal extends React.Component {
         </View>
       );
     } else {
-      return <NotePreview text={this.state.text} onTapCheckBox={this.tapCheckBox.bind(this)} />;
+      return <NotePreview text={this.state.text} onTapCheckBox={this.tapCheckBox} />;
     }
   }
 
@@ -139,6 +158,7 @@ export default class NoteModal extends React.Component {
    * Insert markdown characters to the text of selected place.
    * @param character Markdown character
    */
+  @autobind
   insertMarkdownBetween(character) {
     const beforeText = this.state.text.substring(0, this.state.endOfSelection);
     const afterText = this.state.text.substring(this.state.endOfSelection, this.state.text.length);
@@ -151,6 +171,7 @@ export default class NoteModal extends React.Component {
   /**
    * Paste from clipboard to the text
    */
+  @autobind
   async pasteContent() {
     const beforeText = this.state.text.substring(0, this.state.endOfSelection);
     const afterText = this.state.text.substring(this.state.endOfSelection, this.state.text.length);
@@ -164,7 +185,8 @@ export default class NoteModal extends React.Component {
    * Toggle checkbox in markdown text
    * @param line
    */
-  tapCheckBox(line) {
+  @autobind
+  tapCheckBox(line: number) {
     const lines = this.state.text.split('\n');
 
     const targetLine = lines[line];
@@ -180,12 +202,14 @@ export default class NoteModal extends React.Component {
     this.onChangeText(lines.join('\n'));
   }
 
+  @autobind
   handleSwitchEditButtonClick() {
     this.setState({
       isEditting: !this.state.isEditting,
     });
   }
 
+  @autobind
   handlePressDetailButton() {
     ActionSheet.show(
       {
@@ -209,24 +233,26 @@ export default class NoteModal extends React.Component {
   }
 
   render() {
+    const onClosed = () => this.props.setIsOpen('', false);
+
     return (
       <Root>
         <Modal
-          coverScreen
+          coverScreen={true}
           isOpen={this.props.isNoteOpen}
           position={'top'}
           swipeToClose={false}
-          onClosed={() => this.props.setIsOpen('', false)}
+          onClosed={onClosed}
         >
           <Container>
             <HeaderComponent
               setIsOpen={this.props.setIsOpen}
-              folderName="All Note"
-              handleSwitchEditButtonClick={this.handleSwitchEditButtonClick.bind(this)}
+              folderName={'All Note'}
+              handleSwitchEditButtonClick={this.handleSwitchEditButtonClick}
               isEditting={this.state.isEditting}
-              handlePressDetailButton={this.handlePressDetailButton.bind(this)}
+              handlePressDetailButton={this.handlePressDetailButton}
             />
-            <Content keyboardShouldPersistTaps="always">{this.getNoteComponent()}</Content>
+            <Content keyboardShouldPersistTaps={'always'}>{this.getNoteComponent()}</Content>
           </Container>
         </Modal>
       </Root>

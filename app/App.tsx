@@ -20,10 +20,12 @@ import NoteModal from './views/note/NoteModal';
 import NoteListItem from './components/NoteList/NoteListItem';
 import styles from './AppStyle';
 
-import AwsMobileAnalyticsConfig from './lib/AwsMobileAnalytics';
+import * as AwsMobileAnalyticsConfig from './lib/AwsMobileAnalytics';
 import { makeRandomHex } from './lib/Strings';
 
 import RNFetchBlob from 'react-native-fetch-blob';
+import autobind from 'autobind-decorator';
+import { INote } from './models';
 const fs = RNFetchBlob.fs;
 const dirs = RNFetchBlob.fs.dirs;
 
@@ -31,17 +33,25 @@ const MARKDOWN_NOTE = 'MARKDOWN_NOTE';
 // const SNIPPET_NOTE = 'SNIPPET_NOTE'
 const DEFAULT_FOLDER = 'DEFAULT_FOLDER';
 
-const HeaderLeft = ({ openDrawer }) => (
+interface IHeaderLeft {
+  openDrawer: () => void;
+}
+
+const HeaderLeft = ({ openDrawer }: IHeaderLeft) => (
   <Left>
     <View>
       <Button transparent={true} onPress={openDrawer}>
-        <Icon name="md-reorder" style={styles.headerMenuButton} />
+        <Icon name={'md-reorder'} style={styles.headerMenuButton} />
       </Button>
     </View>
   </Left>
 );
 
-const HeaderBody = ({ mode }) => (
+interface IHeaderBodyProps {
+  mode: unknown;
+}
+
+const HeaderBody = ({ mode }: IHeaderBodyProps) => (
   <Body>
     <View>
       <Title style={Platform.OS === 'android' ? styles.androidAppName : styles.iOsAppName}>
@@ -51,7 +61,12 @@ const HeaderBody = ({ mode }) => (
   </Body>
 );
 
-const HeaderRight = ({ onFilterFavorites, filterFavorites }) => (
+interface IHeaderRightProps {
+  onFilterFavorites: () => void;
+  filterFavorites: boolean;
+}
+
+const HeaderRight = ({ onFilterFavorites, filterFavorites }: IHeaderRightProps) => (
   <Right>
     <View>
       <TouchableOpacity onPress={onFilterFavorites}>
@@ -64,10 +79,24 @@ const HeaderRight = ({ onFilterFavorites, filterFavorites }) => (
   </Right>
 );
 
-const NoteList = ({ noteList, filterFavorites, onStarPress, setNoteModalIsOpen }) => (
+interface INoteListItemProps {
+  noteList: INote[];
+  filterFavorites: boolean;
+  onStarPress: () => void;
+  setNoteModalIsOpen: () => void;
+}
+
+const NoteList = ({
+  noteList,
+  filterFavorites,
+  onStarPress,
+  setNoteModalIsOpen,
+}: INoteListItemProps) => (
   <Content contentContainerStyle={{ display: 'flex' }}>
     {noteList.map((note) => {
-      if (filterFavorites && !note.isStarred) return null;
+      if (filterFavorites && !note.isStarred) {
+        return null;
+      }
       return (
         <NoteListItem
           note={note}
@@ -80,10 +109,14 @@ const NoteList = ({ noteList, filterFavorites, onStarPress, setNoteModalIsOpen }
   </Content>
 );
 
-const CreateNewNoteButton = ({ onPressActionButton }) => (
-  <Button transparent onPress={() => onPressActionButton()} style={styles.newPostButtonWrap}>
+interface ICreateNewNoteButtonProps {
+  onPressActionButton: () => void;
+}
+
+const CreateNewNoteButton = ({ onPressActionButton }: ICreateNewNoteButtonProps) => (
+  <Button transparent={true} onPress={onPressActionButton} style={styles.newPostButtonWrap}>
     <View style={styles.newPostButton}>
-      <Icon name="md-add" style={{ color: '#fff' }} />
+      <Icon name={'md-add'} style={{ color: '#fff' }} />
     </View>
   </Button>
 );
@@ -115,19 +148,6 @@ export default class App extends React.Component<IAppProps, IAppState> {
 
     // Init AwsMobileAnalytics
     AwsMobileAnalyticsConfig.initAwsMobileAnalytics();
-
-    this.openDrawer = this.openDrawer.bind(this);
-    this.closeDrawer = this.closeDrawer.bind(this);
-    this.setNoteModalIsOpen = this.setNoteModalIsOpen.bind(this);
-    this.onStarPress = this.onStarPress.bind(this);
-    this.listDir = this.listDir.bind(this);
-    this.listFiles = this.listFiles.bind(this);
-    this.listFilesAndSetState = this.listFilesAndSetState.bind(this);
-    this.createDir = this.createDir.bind(this);
-    this.createNewNote = this.createNewNote.bind(this);
-    this.changeMode = this.changeMode.bind(this);
-    this.onFilterFavorites = this.onFilterFavorites.bind(this);
-    this.onPressActionButton = this.onPressActionButton.bind(this);
   }
 
   componentWillMount() {
@@ -177,14 +197,17 @@ export default class App extends React.Component<IAppProps, IAppState> {
       });
   }
 
+  @autobind
   openDrawer() {
     this._drawer._root.open();
   }
 
+  @autobind
   closeDrawer() {
     this._drawer._root.close();
   }
 
+  @autobind
   setNoteModalIsOpen(fileName: string, isOpen: boolean) {
     if (isOpen) {
       fs.readFile(`${dirs.DocumentDir}/Boostnote/${fileName}`, 'utf8').then((content: string) => {
@@ -203,6 +226,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
+  @autobind
   onStarPress(fileName: string) {
     fs.readFile(`${dirs.DocumentDir}/Boostnote/boostnote.json`, 'utf8')
       .then((content: string) => {
@@ -229,20 +253,24 @@ export default class App extends React.Component<IAppProps, IAppState> {
       });
   }
 
+  @autobind
   onFilterFavorites() {
     this.setState((prevState, props) => {
       return { filterFavorites: !prevState.filterFavorites };
     });
   }
 
+  @autobind
   listDir() {
     return RNFetchBlob.fs.ls(`${dirs.DocumentDir}`);
   }
 
+  @autobind
   listFiles() {
     return RNFetchBlob.fs.ls(`${dirs.DocumentDir}/Boostnote`);
   }
 
+  @autobind
   async listFilesAndSetState() {
     const files = await this.listFiles();
     const filteredFiles = files.filter((name: string) => {
@@ -279,6 +307,7 @@ export default class App extends React.Component<IAppProps, IAppState> {
     });
   }
 
+  @autobind
   createDir() {
     RNFetchBlob.fs
       .mkdir(`${dirs.DocumentDir}/Boostnote`)
@@ -290,7 +319,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
       });
   }
 
-  createNewNote(fileName, isOpen) {
+  @autobind
+  createNewNote(fileName: string, isOpen: boolean) {
     const newFileName = fileName === '' ? `${makeRandomHex()}.md` : fileName;
 
     // Create a real file
@@ -321,20 +351,22 @@ export default class App extends React.Component<IAppProps, IAppState> {
           `${dirs.DocumentDir}/Boostnote/boostnote.json`,
           JSON.stringify(contentObject),
           'utf8',
-        ).catch((err) => console.log(err));
+        ).catch((err: Error) => console.log(err));
         AwsMobileAnalyticsConfig.recordDynamicCustomEvent('CREATE_NOTE');
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         console.log(err);
       });
   }
 
+  @autobind
   changeMode(mode) {
     this.setState({
       mode: mode,
     });
   }
 
+  @autobind
   onPressActionButton() {
     if (this.state.mode === 0) {
       this.createNewNote('', true);
@@ -343,7 +375,8 @@ export default class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  setIsConnectedToDropbox(value) {
+  @autobind
+  setIsConnectedToDropbox(value: boolean) {
     this.setState({
       isConnectedToDropbox: value,
     });
@@ -388,9 +421,9 @@ export default class App extends React.Component<IAppProps, IAppState> {
             />
           ) : (
             <DropboxNoteList
-              ref="dropboxNoteList"
+              ref={'dropboxNoteList'}
               isConnectedToDropbox={isConnectedToDropbox}
-              setIsConnectedToDropbox={this.setIsConnectedToDropbox.bind(this)}
+              setIsConnectedToDropbox={this.setIsConnectedToDropbox}
             />
           )}
         </Container>

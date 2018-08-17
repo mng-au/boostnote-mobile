@@ -1,10 +1,24 @@
-import React, { Component } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import * as React from 'react';
+import { Text, View, TouchableOpacity, StyleProp, ViewStyle, TextStyle } from 'react-native';
 import { Icon } from 'native-base';
-import moment from 'moment';
+import * as moment from 'moment';
 import removeMd from 'remove-markdown-and-html';
+import autobind from 'autobind-decorator';
+import { INote } from '../../models';
 
-const styles = {
+interface INodeListItemStyles {
+  noteList: StyleProp<ViewStyle>;
+  noteItemSectionLeft: StyleProp<ViewStyle>;
+  noteItemSectionRight: StyleProp<ViewStyle>;
+  noteListText: StyleProp<TextStyle>;
+  noteListTextNone: StyleProp<TextStyle>;
+  noteListDate: StyleProp<TextStyle>;
+  noteStarIcon: any;
+  noteListIcon: any;
+  noteListIconWrap: any;
+}
+
+const styles: INodeListItemStyles = {
   noteList: {
     width: '100%',
     height: 65,
@@ -71,36 +85,44 @@ const styles = {
   },
 };
 
-class NoteListItem extends Component {
-  constructor(props) {
+interface INoteListItemProps {
+  note: INote;
+  onNotePress: (fileName: string, isOpen: boolean) => void;
+  onStarPress: (fileName: string) => void;
+}
+
+class NoteListItem extends React.Component<INoteListItemProps> {
+  constructor(props: INoteListItemProps) {
     super(props);
     this.onNotePress = this.onNotePress.bind(this);
     this.onStarPress = this.onStarPress.bind(this);
   }
 
+  @autobind
   onNotePress() {
-    const { note, onNotePress } = this.props || {};
-    const { fileName } = note || {};
+    const { note, onNotePress } = this.props;
+    const { fileName } = note;
 
     onNotePress(fileName, true);
   }
 
+  @autobind
   onStarPress() {
-    const { note, onStarPress } = this.props || {};
-    const { fileName } = note || {};
+    const { note, onStarPress } = this.props;
+    const { fileName } = note;
 
     onStarPress(fileName);
   }
 
   render() {
-    const { note } = this.props || {};
-    const { content, createdAt, isStarred, updatedAt } = note || {};
+    const { note } = this.props;
+    const { content, isStarred, updatedAt } = note;
     return (
       <TouchableOpacity style={styles.noteList} onPress={this.onNotePress}>
         <View style={styles.noteItemSectionLeft}>
           <Text
             numberOfLines={2}
-            ellipsizeMode="tail"
+            ellipsizeMode={'tail'}
             style={
               content !== 'Tap here and write something!'
                 ? styles.noteListText
@@ -111,7 +133,9 @@ class NoteListItem extends Component {
           </Text>
         </View>
         <View style={styles.noteItemSectionRight}>
-          {/* <Text style={styles.noteListDate}>{moment(updatedAt).format('MMM D') + '\n' + moment(createdAt).format('MMM D')}</Text> */}
+          {/* <Text style={styles.noteListDate}>
+              {moment(updatedAt).format('MMM D') + '\n' + moment(createdAt).format('MMM D')}
+              </Text> */}
           <Text style={styles.noteListDate}>{moment(updatedAt).format('MMM D')}</Text>
           <TouchableOpacity onPress={this.onStarPress}>
             <Icon name={isStarred ? 'md-star' : 'md-star-outline'} style={styles.noteStarIcon} />
