@@ -1,9 +1,18 @@
-export default Styles = {
+import { StyleProp, ViewStyle } from 'react-native';
+
+export interface IStyles {
+  inputSupportWrap: StyleProp<ViewStyle>;
+  inputElementsStyle: any;
+  supportImage: any;
+  checkboxImage: any;
+}
+
+export const Styles: IStyles = {
   inputSupportWrap: {
     flexDirection: 'row',
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
     paddingLeft: 5,
-    paddingRight: 5
+    paddingRight: 5,
   },
   inputElementsStyle: {
     paddingLeft: 10,
@@ -18,16 +27,16 @@ export default Styles = {
     borderWidth: 0,
     backgroundColor: 'rgba(255, 255, 255, 1)',
     width: 50,
-    height: 30
+    height: 30,
   },
   supportImage: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%'
+    height: '100%',
   },
   checkboxImage: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: '90%'
-  }
-}
+    height: '90%',
+  },
+};

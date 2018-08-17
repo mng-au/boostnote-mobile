@@ -6,7 +6,7 @@ export const settings = {
   awsAppId: 'xxxxxxxxxxxxxxxxxx',
   awsTitle: 'xxxxxxxxxxxxx',
   dropboxClientId: 'xxxxxxxx',
-  dropboxClientSecret: 'xxxxxxxx'
-}
+  dropboxClientSecret: 'xxxxxxxx',
+};
 
-export default settings
+export default settings;

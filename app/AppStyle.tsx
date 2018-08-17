@@ -1,28 +1,28 @@
 export default {
   iosHeader: {
-    backgroundColor: '#f9f9f9'
+    backgroundColor: '#f9f9f9',
   },
   androidHeader: {
     backgroundColor: '#f9f9f9',
-    height: 70
+    height: 70,
   },
   iOsAppName: {
     color: '#1ec38b',
     fontSize: 18,
-    fontWeight: '600'
+    fontWeight: '600',
   },
   androidAppName: {
     color: '#1ec38b',
     fontSize: 18,
-    fontWeight: '600'
+    fontWeight: '600',
   },
   headerMenuButton: {
     color: '#1ec38b',
-    fontSize: 24
+    fontSize: 24,
   },
   headerRightMenuButton: {
     color: '#FED530',
-    fontSize: 21
+    fontSize: 21,
   },
   newPostButtonWrap: {
     position: 'absolute',
@@ -33,11 +33,11 @@ export default {
     borderRadius: 50,
     shadowOffset: {
       width: 0,
-      height: 3
+      height: 3,
     },
     shadowColor: '#282C34',
     shadowOpacity: 0.4,
-    shadowRadius: 6
+    shadowRadius: 6,
   },
   newPostButton: {
     display: 'flex',
@@ -48,6 +48,6 @@ export default {
     height: 60,
     borderRadius: 50,
     overflow: 'hidden',
-    position: 'absolute'
-  }
-}
+    position: 'absolute',
+  },
+};

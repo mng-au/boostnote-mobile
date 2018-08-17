@@ -1,15 +1,6 @@
-# Temporary Stop
+# Fork of BoostNote Mobile
 
-We're going to close this project for a while because the code quality is too bad and the original maintainer left this project quite ago.
-
-But, it doesn't mean that we give up this project. We'll be back after we finish renewing of Boostnote. The renewed app will use CouchDB(or other comptible db to it). So, lots of changes should be required. And, we write whole stuff in native languages, Swift and Kotlin.
-
-Anyway, if you're interested in the renewing, please join [our slack](https://join.slack.com/t/boostnote-group/shared_invite/enQtMzkxOTk4ODkyNzc0LThkNmMzY2VlZjVhYTNiYjE5YjQyZGVjNTJlYTY1OGMyZTFjNGU5YTUyYjUzOWZhYTU4OTVlNDYyNDFjYWMzNDM) and ping me. 😄 😄
-
-Thanks.
-Junyoung Choi, @Rokt33r of BoostIO.
-
-https://github.com/BoostIO/boostnote-mobile/issues/201
+Please see https://github.com/BoostIO/boostnote-mobile/ for details.
 
 ---
 
